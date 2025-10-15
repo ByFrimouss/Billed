@@ -19,8 +19,15 @@ const row = (bill) => {
     `)
   }
 
+  ///////////////// TRI DÉCROISSANT ////////////////
+  
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
+  if (!data || !data.length) return ""
+
+  // Tri des factures du plus récent au plus ancien
+  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date))
+
+  return sortedData.map(bill => row(bill)).join("")
 }
 
 export default ({ data: bills, loading, error }) => {
