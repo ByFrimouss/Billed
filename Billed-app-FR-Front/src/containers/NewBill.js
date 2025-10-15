@@ -62,6 +62,7 @@ export default class NewBill {
   }
 
   // not need to cover this function by tests
+  // pas besoin de couvrir cette fonction par des tests
   updateBill = (bill) => {
     if (this.store) {
       this.store
