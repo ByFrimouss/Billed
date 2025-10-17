@@ -57,7 +57,7 @@ export default () => {
                     <label for="file" class="bold-label">Justificatif</label>
                     <input required type="file" class="form-control blue-border" data-testid="file" />
 
-                    ////////////// MESSAGE DERREUR ///////////////
+                   <!-- MESSAGE DERREUR -->
                     <p data-testid="file-error" class="text-danger" style="display:none;">
     Le format du fichier doit être jpg, jpeg ou png.
   </p>

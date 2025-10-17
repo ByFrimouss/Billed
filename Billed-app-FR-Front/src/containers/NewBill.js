@@ -54,12 +54,14 @@ handleChangeFile = e => {
     if (errorElement) errorElement.textContent = "Seuls les formats de fichier jpg, jpeg et png sont valides."
     // Si un élément d’erreur existe dans le DOM, affiche un message explicite
 
+    errorElement.style.display = "block"
     return
     // Stoppe la fonction   
   }
 
   // Si le fichier est valide, vide le message d’erreur
   if (errorElement) errorElement.textContent = ""
+  errorElement.style.display = "none" 
 
   this.fileName = fileName
   this.file = file

@@ -72,6 +72,7 @@ export default class {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
+    this.ticketsCounters = {} // <--- compteur par liste
     $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
     $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
     $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
@@ -130,28 +131,36 @@ export default class {
     this.onNavigate(ROUTES_PATH['Dashboard'])
   }
 
-  handleShowTickets(e, bills, index) {
-    if (this.counter === undefined || this.index !== index) this.counter = 0
-    if (this.index === undefined || this.index !== index) this.index = index
-    if (this.counter % 2 === 0) {
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)'})
-      $(`#status-bills-container${this.index}`)
-        .html(cards(filteredBills(bills, getStatus(this.index))))
-      this.counter ++
-    } else {
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
-      $(`#status-bills-container${this.index}`)
-        .html("")
-      this.counter ++
-    }
+////////////////// DÉPLIER PLUSIEURS LISTES, ET CONSULTER LES /////////////////
+////////////////////// TICKETS DE CHACUNE DES DEUX LISTES /////////////////////
 
-    bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
-    })
+handleShowTickets(e, bills, index) {
+  // Initialisation du compteur pour cette liste
+  if (this.ticketsCounters[index] === undefined) this.ticketsCounters[index] = 0
 
-    return bills
+  const filtered = filteredBills(bills, getStatus(index))
 
+  if (this.ticketsCounters[index] % 2 === 0) {
+    // Ouvrir la liste
+    $(`#arrow-icon${index}`).css({ transform: 'rotate(0deg)'})
+    $(`#status-bills-container${index}`).html(cards(filtered))
+  } else {
+    // Fermer la liste
+    $(`#arrow-icon${index}`).css({ transform: 'rotate(90deg)'})
+    $(`#status-bills-container${index}`).html("")
   }
+
+  // Ajouter les événements click uniquement sur les tickets affichés
+  filtered.forEach(bill => {
+    $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
+  })
+
+  // Incrémenter le compteur
+  this.ticketsCounters[index]++
+
+  return filtered
+}
+
 
   getBillsAllUsers = () => {
     if (this.store) {

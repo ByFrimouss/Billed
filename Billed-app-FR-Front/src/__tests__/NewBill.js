@@ -14,9 +14,6 @@ import { localStorageMock } from "../__mocks__/localStorage.js"
 import { ROUTES } from "../constants/routes.js"
 import router from "../app/Router.js"
 
-
-
-
 //////////////////////// SCÉNARIO 5 /////////////////////
 // Étant donné que je suis connecté en tant qu’employé
 describe("Given I am connected as an employee", () => {
@@ -34,7 +31,7 @@ describe("Given I am connected as an employee", () => {
     })
   })
 })
-
+debugger
 //////////////////////// SCÉNARIO 7 /////////////////////
 // Alors télécharger un fichier avec une extension invalide devrait afficher un message d'erreur
     test("Then uploading a file with an invalid extension should show an error message", async () => {
