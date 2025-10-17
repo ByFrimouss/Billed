@@ -14,6 +14,7 @@ import { fireEvent, screen } from "@testing-library/dom";
 
 //////////////////////// EMPLOYEE /////////////////////
 
+//////////////////////// SCÉNARIO 1 /////////////////////
 // Quand je ne remplis pas les champs et que je clique sur le bouton de connexion employé
 describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
@@ -36,6 +37,7 @@ describe("Given that I am a user on login page", () => {
     });
   });
 
+  //////////////////////// SCÉNARIO 2 /////////////////////
   // Quand je remplis les champs avec un format incorrect et que je clique sur le bouton de connexion employé
   describe("When I do fill fields in incorrect format and I click on employee button Login In", () => {
     test("Then It should renders Login page", () => {
@@ -58,6 +60,7 @@ describe("Given that I am a user on login page", () => {
     });
   });
 
+  //////////////////////// SCÉNARIO 3 /////////////////////
   // Quand je remplis correctement les champs et que je clique sur le bouton de connexion employé
   describe("When I do fill fields in correct format and I click on employee button Login In", () => {
     // Alors je devrais être identifié comme un employé dans l’application

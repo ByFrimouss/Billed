@@ -11,12 +11,11 @@ import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
-
 import router from "../app/Router.js";
 
 // Étant donné que je suis connecté en tant qu’employé
 describe("Given I am connected as an employee", () => {
-  // Quand je suis sur la page des notes de frais
+  // Quand je suis sur la page Bills
   describe("When I am on Bills Page", () => {
     // Alors l’icône des factures dans la barre latérale verticale doit être surlignée
     test("Then bill icon in vertical layout should be highlighted", async () => {
@@ -37,6 +36,8 @@ describe("Given I am connected as an employee", () => {
 
       
     })
+
+    /////////////////////// SCÉNARIO 4 /////////////////////
     // Alors les factures doivent être triées de la plus récente à la plus ancienne
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
