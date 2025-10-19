@@ -43,7 +43,7 @@ describe("Given I am connected as an employee", () => {
       await waitFor(() => screen.getByTestId("icon-window"));
       const windowIcon = screen.getByTestId("icon-window");
 
-      // EXPECT : Vérifie que la classe "active-icon" est bien appliquée
+      // Vérifie que la classe "active-icon" est bien appliquée
       expect(windowIcon.classList.contains("active-icon")).toBe(true);
     });
 
@@ -99,13 +99,13 @@ describe("Given I am connected as Employee", () => {
     });
   });
 
-  // TEST handleClickNewBill
+  // TEST handleClickNewBill : Vérifie la navigation
   test("handleClickNewBill navigates to NewBill page", () => {
     billsContainer.handleClickNewBill();
     expect(window.location.hash).toBe("#employee/bill/new");
   });
 
-  // TEST handleClickIconEye
+  // TEST handleClickIconEye : Vérifie que la modal contient l'image
   test("handleClickIconEye shows modal with bill image", () => {
     const icon = screen.getByTestId("icon-eye");
     billsContainer.handleClickIconEye(icon);
