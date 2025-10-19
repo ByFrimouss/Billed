@@ -11,7 +11,6 @@ import Login from "../containers/Login.js";
 import { ROUTES } from "../constants/routes";
 import { fireEvent, screen } from "@testing-library/dom";
 
-
 //////////////////////// EMPLOYEE /////////////////////
 
 //////////////////////// SCÉNARIO 1 /////////////////////
