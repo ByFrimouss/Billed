@@ -1,7 +1,5 @@
-
 export default () => {
-
-  return(`
+  return `
       <div class="page-div">
         <div class="row">
           <div class="title-container"> 
@@ -16,12 +14,14 @@ export default () => {
           <div class="col-sm-6">
             <div class="card">
               <div class="card-body">
-                <form class="form-signin" data-testid="form-employee">
+                <form class="form-signin" data-testid="form-employee" autocomplete="off">
                   <h2 class="h3 mb-3 font-weight-normal">Employé</h1>
                   <label for="inputEmail">Votre email</label>
-                  <input type="email" data-testid="employee-email-input" class="form-control" placeholder="johndoe@email.com" required autofocus>
+                  <input type="email" data-testid="employee-email-input" class="form-control" placeholder="johndoe@email.com" required autocomplete="new-email" autofocus>
+                  <div id="error-employee-email" class="text-danger" style="display:none; font-size: 0.9em;"></div>
                   <label for="inputPassword">Mot de passe</label>
-                  <input type="password" data-testid="employee-password-input" class="form-control" placeholder="******" required>
+                  <input type="password" data-testid="employee-password-input" class="form-control" placeholder="******" required autocomplete="new-password">
+                  <div id="error-employee-password" class="text-danger" style="display:none; font-size: 0.9em;"></div>
                   <button class="btn btn-lg btn-primary btn-block" data-testid="employee-login-button" style="background-color: #0E5AE5;" type="submit">Se connecter</button>
                 </form>
               </div>
@@ -30,12 +30,14 @@ export default () => {
           <div class="col-sm-6">
             <div class="card">
               <div class="card-body">
-                <form class="form-signin" data-testid="form-admin">
+                <form class="form-signin" data-testid="form-admin" autocomplete="off">
                   <h2 class="h3 mb-3 font-weight-normal">Administration</h1>
                   <label for="inputEmail">Votre email</label>
-                  <input type="email" data-testid="admin-email-input" class="form-control" placeholder="johndoe@email.com" required autofocus>
+                  <input type="email" data-testid="admin-email-input" class="form-control" placeholder="johndoe@email.com" required autocomplete="new-email" autofocus>
+                  <div id="error-admin-email" class="text-danger" style="display:none; font-size: 0.9em;"></div>
                   <label for="inputPassword">Mot de passe</label>
-                  <input type="password" data-testid="admin-password-input" class="form-control" placeholder="******" required>
+                  <input type="password" data-testid="admin-password-input" class="form-control" placeholder="******" required autocomplete="new-password">
+                  <div id="error-admin-password" class="text-danger" style="display:none; font-size: 0.9em;"></div>            
                   <button  type="submit" class="btn btn-lg btn-primary btn-block" data-testid="admin-login-button" style="background-color: #0E5AE5;">Se connecter</button>
                 </form>
               </div>
@@ -43,6 +45,5 @@ export default () => {
           </div>
         </div>
       </div>
-  `)
-}
-  
+  `;
+};

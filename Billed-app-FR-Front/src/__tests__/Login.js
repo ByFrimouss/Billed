@@ -9,11 +9,22 @@
 import LoginUI from "../views/LoginUI";
 import Login from "../containers/Login.js";
 import { ROUTES } from "../constants/routes";
-import { fireEvent, screen } from "@testing-library/dom";
+import { fireEvent, screen, waitFor } from "@testing-library/dom";
+
+// 💡 Mock complet pour tous les tests Login
+const mockStore = {
+  login: jest.fn(() => Promise.resolve({ jwt: "12345" })), // 👈 renvoie `jwt` comme attendu
+  users: jest.fn(() => ({
+    create: jest.fn(() => Promise.resolve({})),
+  })),
+};
 
 //////////////////////// EMPLOYEE /////////////////////
 
-//////////////////////// SCÉNARIO 1 /////////////////////
+/////////////////////////////////////////////////////////
+///// SCÉNARIO 1 — Champs vides => reste sur Login ///////
+/////////////////////////////////////////////////////////
+
 // Quand je ne remplis pas les champs et que je clique sur le bouton de connexion employé
 describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
@@ -36,7 +47,10 @@ describe("Given that I am a user on login page", () => {
     });
   });
 
-  //////////////////////// SCÉNARIO 2 /////////////////////
+  /////////////////////////////////////////////////////////
+  ///// SCÉNARIO 2 — Email incorrect => reste sur Login ////
+  /////////////////////////////////////////////////////////
+
   // Quand je remplis les champs avec un format incorrect et que je clique sur le bouton de connexion employé
   describe("When I do fill fields in incorrect format and I click on employee button Login In", () => {
     test("Then It should renders Login page", () => {
@@ -59,7 +73,10 @@ describe("Given that I am a user on login page", () => {
     });
   });
 
-  //////////////////////// SCÉNARIO 3 /////////////////////
+  ///////////////////////////////////////////////////////////////////////
+  ///// SCÉNARIO 3 — Connexion valide => accès Tableau de bord ////////
+  //////////////////////////////////////////////////////////////////////
+
   // Quand je remplis correctement les champs et que je clique sur le bouton de connexion employé
   describe("When I do fill fields in correct format and I click on employee button Login In", () => {
     // Alors je devrais être identifié comme un employé dans l’application
@@ -107,7 +124,7 @@ describe("Given that I am a user on login page", () => {
         localStorage: window.localStorage,
         onNavigate,
         PREVIOUS_LOCATION,
-        store,
+        store: mockStore,
       });
 
       const handleSubmit = jest.fn(login.handleSubmitEmployee);
@@ -224,7 +241,7 @@ describe("Given that I am a user on login page", () => {
         localStorage: window.localStorage,
         onNavigate,
         PREVIOUS_LOCATION,
-        store,
+        store: mockStore,
       });
 
       const handleSubmit = jest.fn(login.handleSubmitAdmin);
@@ -248,5 +265,126 @@ describe("Given that I am a user on login page", () => {
     test("It should renders HR dashboard page", () => {
       expect(screen.queryByText("Validations")).toBeTruthy();
     });
+  });
+});
+
+////////////////// TESTS ADDITIONNELS //////////////////////
+
+////////////////////////////////////////////////////////////
+///// SCÉNARIO 4 — Erreur API lors du login employé ////////
+////////////////////////////////////////////////////////////
+
+describe("Additional tests for Login.js coverage", () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <form data-testid="form-employee">
+        <input data-testid="employee-email-input">
+        <input data-testid="employee-password-input">
+      </form>
+    `;
+  });
+
+  describe("Additional tests for Login.js coverage", () => {
+    test("login() rejette une erreur quand l'API échoue", async () => {
+      const store = {
+        login: jest.fn().mockRejectedValue(new Error("API error")),
+      };
+
+      const onNavigate = jest.fn();
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION: "",
+        store,
+      });
+
+      const user = { email: "test@test.com", password: "wrong" };
+
+      // le test vérifie uniquement le rejet, pas le console.error
+      await expect(login.login(user)).rejects.toThrow("API error");
+      expect(store.login).toHaveBeenCalledWith(JSON.stringify(user));
+    });
+  });
+});
+
+////////////////////////////////////////////////////////////
+///// SCÉNARIO 5 — Aucun store => login() retourne null /////
+////////////////////////////////////////////////////////////
+
+// Cas 2 : store undefined
+test("login() retourne null quand store est undefined", async () => {
+  document.body.innerHTML = LoginUI();
+
+  const login = new Login({
+    document,
+    localStorage: window.localStorage,
+    store: undefined,
+  });
+
+  const result = await login.login({
+    email: "test@email.com",
+    password: "1234",
+  });
+
+  expect(result).toBeNull();
+});
+
+/////////////////////////////////////////////////////////////
+///// SCÉNARIO 7 — Soumission Login employé complète ////////
+/////////////////////////////////////////////////////////////
+
+// Cas 4 : soumission formulaire employé
+test("handleSubmitEmployee appelle store.login() et onNavigate", async () => {
+  // Mock window.localStorage AVANT d'instancier Login
+  const localStorageMock = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+  };
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+    writable: true,
+  });
+
+  document.body.innerHTML = LoginUI();
+
+  const mockNavigate = jest.fn();
+
+  const login = new Login({
+    document,
+    localStorage: window.localStorage,
+    store: {
+      login: jest.fn(() => Promise.resolve({ jwt: "12345" })),
+      users: jest.fn(() => ({ create: jest.fn(() => Promise.resolve({})) })),
+    },
+    onNavigate: mockNavigate,
+  });
+
+  // remplir les champs
+  fireEvent.change(screen.getByTestId("employee-email-input"), {
+    target: { value: "employee@test.tld" },
+  });
+  fireEvent.change(screen.getByTestId("employee-password-input"), {
+    target: { value: "1234" },
+  });
+
+  // soumettre le formulaire
+  const form = screen.getByTestId("form-employee");
+  fireEvent.submit(form);
+
+  // attendre que toutes les promesses microtasks soient résolues
+  await waitFor(() => {
+    expect(login.store.login).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith("#employee/bills");
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      "user",
+      JSON.stringify({
+        type: "Employee",
+        email: "employee@test.tld",
+        password: "1234",
+        status: "connected",
+      })
+    );
+    expect(window.localStorage.setItem).toHaveBeenCalledWith("jwt", "12345");
   });
 });

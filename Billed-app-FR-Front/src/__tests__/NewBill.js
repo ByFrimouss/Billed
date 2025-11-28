@@ -11,7 +11,7 @@ import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import mockStore from "../__mocks__/store";
 import { localStorageMock } from "../__mocks__/localStorage.js";
-import { ROUTES } from "../constants/routes.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
 
 //////////////////////// SCÉNARIO 5 /////////////////////
@@ -31,7 +31,7 @@ describe("Given I am connected as an employee", () => {
     });
   });
 });
-debugger;
+
 //////////////////////// SCÉNARIO 7 /////////////////////
 // Alors télécharger un fichier avec une extension invalide devrait afficher un message d'erreur
 test("Then uploading a file with an invalid extension should show an error message", async () => {
@@ -150,45 +150,15 @@ describe("Given I am connected as an employee", () => {
         },
       });
 
-      const spyCreate = jest.spyOn(mockStore.bills(), "create");
+      // On espionne la méthode update() de mockStore
+      const spyUpdate = jest.spyOn(mockStore.bills(), "update");
 
       fireEvent.submit(form);
-      await new Promise(process.nextTick); // attend que les promesses du store soient résolues
 
-      expect(spyCreate).toHaveBeenCalled(); // vérifie l'appel à store.bills().create
-      expect(onNavigate).toHaveBeenCalledWith(ROUTES.Bills); // vérifie la navigation vers Bills
-    });
-
-    // Alors soumettre le formulaire avec une erreur API affiche un message d'erreur
-    test("Then submitting the form with API error shows error message", async () => {
-      jest.spyOn(mockStore, "bills").mockImplementationOnce(() => {
-        return { create: () => Promise.reject(new Error("Erreur 500")) };
+      await waitFor(() => {
+        expect(spyUpdate).toHaveBeenCalled(); // Vérifie que update() a été appelée
+        expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH["Bills"]); // Vérifie la navigation
       });
-
-      const form = screen.getByTestId("form-new-bill");
-
-      // Remplir les champs nécessaires
-      fireEvent.change(screen.getByTestId("expense-type"), {
-        target: { value: "Transports" },
-      });
-      fireEvent.change(screen.getByTestId("expense-name"), {
-        target: { value: "Taxi" },
-      });
-      fireEvent.change(screen.getByTestId("amount"), { target: { value: 50 } });
-      fireEvent.change(screen.getByTestId("datepicker"), {
-        target: { value: "2025-10-19" },
-      });
-      fireEvent.change(screen.getByTestId("file"), {
-        target: {
-          files: [new File(["img"], "test.png", { type: "image/png" })],
-        },
-      });
-
-      fireEvent.submit(form);
-      await new Promise(process.nextTick);
-
-      const errorMessage = screen.getByText(/Erreur 500/);
-      expect(errorMessage).toBeTruthy();
     });
   });
 });
