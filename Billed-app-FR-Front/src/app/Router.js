@@ -84,19 +84,15 @@ export default () => {
       return onNavigate(ROUTES_PATH.Login);
     }
 
-    // --- ADMIN : toujours rester sur Dashboard ---
-    // (on ignore toute tentative de back vers une autre page)
+    // --- ADMIN
+    // (Ignore toute tentative de back vers une autre page)
     if (userType === "Admin") {
       // recharge la vue Dashboard — garde l'utilisateur sur cette page
       return onNavigate(ROUTES_PATH.Dashboard);
     }
 
-    // --- EMPLOYEE : règles spécifiques ---
-    // Permet : NewBill -> (back) -> Bills (Dashboard)
-    // Empêche : quitter l'app en pressant back depuis Bills (on reste sur Bills)
+    // --- EMPLOYEE
     if (userType === "Employee") {
-      // Si le nouvel emplacement est explicitement Bills ou NewBill, on navigue.
-      // Sinon (ex: le navigateur voudrait revenir à '/'), on force Bills.
       if (pathname === ROUTES_PATH.NewBill) {
         return onNavigate(ROUTES_PATH.NewBill);
       }
@@ -104,11 +100,9 @@ export default () => {
         return onNavigate(ROUTES_PATH.Bills);
       }
 
-      // Par défaut (si l'historique voudrait nous sortir de l'app), rester sur Bills
       return onNavigate(ROUTES_PATH.Bills);
     }
 
-    // Sécurité : fallback — rester sur Bills pour éviter de quitter l'app
     return onNavigate(ROUTES_PATH.Bills);
   };
 
