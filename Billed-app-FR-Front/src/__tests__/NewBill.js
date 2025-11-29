@@ -14,7 +14,11 @@ import { localStorageMock } from "../__mocks__/localStorage.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
 
-//////////////////////// SCÉNARIO 5 /////////////////////
+//---------------------------------------------
+// Vérifie que le formulaire de nouvelle
+// note de frais s'affiche correctement
+//---------------------------------------------
+
 // Étant donné que je suis connecté en tant qu’employé
 describe("Given I am connected as an employee", () => {
   // Quand je suis sur la page de création d’une nouvelle note de frais
@@ -26,13 +30,19 @@ describe("Given I am connected as an employee", () => {
       //to-do write assertion
       //à faire écrire l'assertion
 
+      // Récupère le formulaire dans le DOM via son testId
       const form = screen.getByTestId("form-new-bill");
+
+      // Vérifie que le formulaire est bien présent
       expect(form).toBeTruthy();
     });
   });
 });
 
-//////////////////////// SCÉNARIO 7 /////////////////////
+//---------------------------------------------
+// Vérifie qu'un fichier invalide déclenche un message d'erreur
+//---------------------------------------------
+
 // Alors télécharger un fichier avec une extension invalide devrait afficher un message d'erreur
 test("Then uploading a file with an invalid extension should show an error message", async () => {
   const html = NewBillUI();
@@ -62,7 +72,11 @@ test("Then uploading a file with an invalid extension should show an error messa
   );
 });
 
-//////////////////////// SCÉNARIO 6 /////////////////////
+//---------------------------------------------
+// Vérifie qu'un fichier valide met à jour
+// les attributs fileUrl et fileName
+//---------------------------------------------
+
 // Alors le téléchargement d'un fichier valide devrait mettre à jour fileUrl et fileName
 test("Then uploading a valid file should update fileUrl and fileName", async () => {
   document.body.innerHTML = NewBillUI();
@@ -93,12 +107,19 @@ test("Then uploading a valid file should update fileUrl and fileName", async () 
   const validFile = new File(["image"], "test.png", { type: "image/png" });
   fireEvent.change(fileInput, { target: { files: [validFile] } });
 
+  // Vérifie que la fonction handleChangeFile a été appelée
   expect(handleChangeFile).toHaveBeenCalled();
+
+  // Vérifie que fileUrl et fileName ont été définis après l'upload
   await waitFor(() => expect(newBill.fileUrl).toBeDefined());
   expect(newBill.fileName).toBe("test.png");
 });
 
+//---------------------------------------------
 // Test d'intégration POST new bill
+//---------------------------------------------
+
+// Teste la soumission complète du formulaire et la communication avec le store
 
 // Étant donné que je suis connecté en tant qu'employé
 describe("Given I am connected as an employee", () => {
@@ -108,6 +129,7 @@ describe("Given I am connected as an employee", () => {
     let onNavigate;
 
     beforeEach(() => {
+      // Rendu de l'UI et initialisation du localStorage
       document.body.innerHTML = NewBillUI();
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
@@ -117,10 +139,12 @@ describe("Given I am connected as an employee", () => {
         JSON.stringify({ type: "Employee", email: "a@a" })
       );
 
+      // Fonction de navigation simulée
       onNavigate = jest.fn((pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       });
 
+      // Instanciation du container NewBill
       newBillContainer = new NewBill({
         document,
         onNavigate,
@@ -129,11 +153,20 @@ describe("Given I am connected as an employee", () => {
       });
     });
 
-    // Alors soumettre le formulaire appelle store.bills().create et navigue vers Bills
-    test("Then submitting the form calls store.bills().create and navigates to Bills page", async () => {
+    // --- TEST POST OK ---
+    test("Then submitting the form calls store.bills().update and navigates to Bills page", async () => {
       const form = screen.getByTestId("form-new-bill");
 
-      // Remplir les champs nécessaires
+      // Simuler l'upload d'un fichier valide avant la soumission
+      const fileInput = screen.getByTestId("file");
+      const validFile = new File(["img"], "test.png", { type: "image/png" });
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      // Attendre que handleChangeFile définisse fileUrl et billId
+      await waitFor(() => expect(newBillContainer.fileUrl).toBeDefined());
+      expect(newBillContainer.billId).toBeDefined();
+
+      // Remplir les champs
       fireEvent.change(screen.getByTestId("expense-type"), {
         target: { value: "Transports" },
       });
@@ -144,21 +177,45 @@ describe("Given I am connected as an employee", () => {
       fireEvent.change(screen.getByTestId("datepicker"), {
         target: { value: "2025-10-19" },
       });
-      fireEvent.change(screen.getByTestId("file"), {
-        target: {
-          files: [new File(["img"], "test.png", { type: "image/png" })],
-        },
-      });
 
-      // On espionne la méthode update() de mockStore
+      // Spy sur la méthode update du store pour vérifier qu'elle est appelée
       const spyUpdate = jest.spyOn(mockStore.bills(), "update");
 
+      // Soumission du formulaire
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(spyUpdate).toHaveBeenCalled(); // Vérifie que update() a été appelée
-        expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH["Bills"]); // Vérifie la navigation
+        expect(spyUpdate).toHaveBeenCalled();
+        expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH["Bills"]);
       });
+    });
+
+    // --- TEST POST 404 ---
+    test("Then API POST returning 404 should throw an error", async () => {
+      // Simule un store rejetant la requête
+      jest.spyOn(mockStore, "bills").mockImplementationOnce(() => ({
+        create: () => Promise.reject(new Error("Erreur 404")),
+        update: () => Promise.reject(new Error("Erreur 404")),
+      }));
+
+      const form = screen.getByTestId("form-new-bill");
+      fireEvent.submit(form);
+
+      // Vérifie que l'erreur s'affiche dans le DOM
+      await waitFor(() => expect(screen.getByText("Erreur 404")).toBeTruthy());
+    });
+
+    // --- TEST POST 500 ---
+    test("Then API POST returning 500 should throw an error", async () => {
+      jest.spyOn(mockStore, "bills").mockImplementationOnce(() => ({
+        create: () => Promise.reject(new Error("Erreur 500")),
+        update: () => Promise.reject(new Error("Erreur 500")),
+      }));
+
+      const form = screen.getByTestId("form-new-bill");
+      fireEvent.submit(form);
+
+      await waitFor(() => expect(screen.getByText("Erreur 500")).toBeTruthy());
     });
   });
 });
