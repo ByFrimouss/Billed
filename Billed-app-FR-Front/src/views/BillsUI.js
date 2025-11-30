@@ -24,7 +24,7 @@ const row = (bill) => {
 const rows = (data) => {
   if (!data || !data.length) return "";
 
-  // Tri décroissant – pour sécurité visuelle
+  // Tri décroissant
   const sortedData = [...data].sort(
     (a, b) => new Date(b.dateRaw) - new Date(a.dateRaw)
   );

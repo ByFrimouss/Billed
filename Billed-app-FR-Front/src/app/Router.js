@@ -20,7 +20,7 @@ export default () => {
     const icon1 = document.getElementById("layout-icon1");
     const icon2 = document.getElementById("layout-icon2");
 
-    if (!icon1 || !icon2) return; // Layout absent (Login, autres vues) → on ne fait rien
+    if (!icon1 || !icon2) return;
 
     icon1.classList.toggle("active-icon", icon1Active);
     icon2.classList.toggle("active-icon", icon2Active);
@@ -35,7 +35,7 @@ export default () => {
     if (pathname === ROUTES_PATH.Login) {
       rootDiv.innerHTML = ROUTES({ pathname });
       document.body.style.backgroundColor = "#0E5AE5";
-      updateLayoutIcons(); // aucune icône active
+      updateLayoutIcons();
       new Login({
         document,
         localStorage,

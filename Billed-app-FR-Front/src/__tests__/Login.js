@@ -22,7 +22,7 @@ const mockStore = {
 //////////////////////// EMPLOYEE /////////////////////
 
 /////////////////////////////////////////////////////////
-///// SCÉNARIO 1 — Champs vides => reste sur Login ///////
+///// Champs vides => reste sur Login ///////
 /////////////////////////////////////////////////////////
 
 // Quand je ne remplis pas les champs et que je clique sur le bouton de connexion employé
@@ -48,7 +48,7 @@ describe("Given that I am a user on login page", () => {
   });
 
   /////////////////////////////////////////////////////////
-  ///// SCÉNARIO 2 — Email incorrect => reste sur Login ////
+  ///// Email incorrect => reste sur Login ////
   /////////////////////////////////////////////////////////
 
   // Quand je remplis les champs avec un format incorrect et que je clique sur le bouton de connexion employé
@@ -74,7 +74,7 @@ describe("Given that I am a user on login page", () => {
   });
 
   ///////////////////////////////////////////////////////////////////////
-  ///// SCÉNARIO 3 — Connexion valide => accès Tableau de bord ////////
+  ///// Connexion valide => accès Tableau de bord ////////
   //////////////////////////////////////////////////////////////////////
 
   // Quand je remplis correctement les champs et que je clique sur le bouton de connexion employé
@@ -271,7 +271,7 @@ describe("Given that I am a user on login page", () => {
 ////////////////// TESTS ADDITIONNELS //////////////////////
 
 ////////////////////////////////////////////////////////////
-///// SCÉNARIO 4 — Erreur API lors du login employé ////////
+///// Erreur API lors du login employé ////////
 ////////////////////////////////////////////////////////////
 
 describe("Additional tests for Login.js coverage", () => {
@@ -309,10 +309,10 @@ describe("Additional tests for Login.js coverage", () => {
 });
 
 ////////////////////////////////////////////////////////////
-///// SCÉNARIO 5 — Aucun store => login() retourne null /////
+///// Aucun store => login() retourne null /////
 ////////////////////////////////////////////////////////////
 
-// Cas 2 : store undefined
+// Store undefined
 test("login() retourne null quand store est undefined", async () => {
   document.body.innerHTML = LoginUI();
 
@@ -331,10 +331,10 @@ test("login() retourne null quand store est undefined", async () => {
 });
 
 /////////////////////////////////////////////////////////////
-///// SCÉNARIO 7 — Soumission Login employé complète ////////
+///// Soumission Login employé complète ////////
 /////////////////////////////////////////////////////////////
 
-// Cas 4 : soumission formulaire employé
+// Soumission formulaire employé
 test("handleSubmitEmployee appelle store.login() et onNavigate", async () => {
   // Mock window.localStorage AVANT d'instancier Login
   const localStorageMock = {
