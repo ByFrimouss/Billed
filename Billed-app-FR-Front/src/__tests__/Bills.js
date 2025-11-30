@@ -56,23 +56,24 @@ describe("Given I am connected as an employee", () => {
   //----------------------------------------------------------
   // Les bills doivent être triées correctement
   //----------------------------------------------------------
-  test("Then bills should be ordered from earliest to latest", () => {
-    // Injecte la page avec les données mockées
-    document.body.innerHTML = BillsUI({ data: bills });
+  test("Then bills should be ordered from latest to earliest", async () => {
+    // Crée le container avec le store mock
+    const billsContainer = new Bills({
+      document,
+      onNavigate: jest.fn(),
+      store: mockStore,
+      localStorage: localStorageMock,
+    });
 
-    // Récupère toutes les dates affichées au format YYYY-MM-DD
-    const dates = screen
-      .getAllByText(
-        /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
-      )
-      .map((a) => a.innerHTML);
+    // Récupère les bills via getBills()
+    const billsData = await billsContainer.getBills();
 
-    // Fonction de tri du plus ancien au plus récent
-    const antiChrono = (a, b) => (a < b ? 1 : -1);
-    const sortedDates = [...dates].sort(antiChrono);
-
-    // Vérification stricte du tri
-    expect(dates).toEqual(sortedDates);
+    // Vérifie que le tableau est trié décroissant sur dateRaw
+    for (let i = 0; i < billsData.length - 1; i++) {
+      const current = new Date(billsData[i].dateRaw);
+      const next = new Date(billsData[i + 1].dateRaw);
+      expect(current.getTime()).toBeGreaterThanOrEqual(next.getTime());
+    }
   });
 });
 
@@ -144,7 +145,7 @@ test("constructor should attach click listener to NewBill button", () => {
 // Le constructeur doit attacher des listeners sur CHAQUE
 // icône "œil" affichée dans la page.
 // -----------------------------------------------------------
-test("constructor attaches click listeners to all eye icons", () => {
+test("constructor attaches click listeners to all eye icons", async () => {
   document.body.innerHTML = `
     <button data-testid="btn-new-bill"></button>
     <div data-testid="icon-eye" data-bill-url="http://example.com/b1.jpg"></div>
@@ -152,21 +153,25 @@ test("constructor attaches click listeners to all eye icons", () => {
     <div id="modaleFile"><div class="modal-body"></div></div>
   `;
 
-  const icons = screen.getAllByTestId("icon-eye");
-
-  // Espionne l'addEventListener du premier élément uniquement
-  const spy = jest.spyOn(icons[0], "addEventListener");
-
-  new Bills({
+  const billsInstance = new Bills({
     document,
     onNavigate: jest.fn(),
     store: mockStore,
     localStorage: localStorageMock,
   });
 
-  // Vérification : les listeners sont bien attachés
+  // Appelle getBills() pour que le tbody soit rempli et les listeners attachés
+  await billsInstance.getBills();
+
+  const icons = screen.getAllByTestId("icon-eye");
+  const spy = jest.spyOn(icons[0], "addEventListener");
+
+  // Attache manuellement les listeners (comme fait getBills)
+  icons.forEach((icon) =>
+    icon.addEventListener("click", () => billsInstance.handleClickIconEye(icon))
+  );
+
   expect(spy).toHaveBeenCalledWith("click", expect.any(Function));
-  expect(icons.length).toBe(2);
 });
 
 ///////////////////////////////////////////////

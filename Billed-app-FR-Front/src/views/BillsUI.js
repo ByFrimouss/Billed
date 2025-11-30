@@ -13,7 +13,7 @@ const row = (bill) => {
       <td>${bill.amount} €</td>
       <td>${bill.status}</td>
       <td>
-        ${Actions(bill.fileUrl)}
+        ${Actions(bill.fileUrl, bill.fileName)}
       </td>
     </tr>
     `;
@@ -24,9 +24,9 @@ const row = (bill) => {
 const rows = (data) => {
   if (!data || !data.length) return "";
 
-  // Tri des factures du plus récent au plus ancien
+  // Tri décroissant – pour sécurité visuelle
   const sortedData = [...data].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+    (a, b) => new Date(b.dateRaw) - new Date(a.dateRaw)
   );
 
   return sortedData.map((bill) => row(bill)).join("");

@@ -36,35 +36,34 @@ export default class {
   };
 
   getBills = () => {
-    if (this.store) {
-      return this.store
-        .bills()
-        .list()
-        .then((snapshot) => {
-          const bills = snapshot.map((doc) => {
-            try {
-              return {
-                ...doc,
-                date: formatDate(doc.date),
-                status: formatStatus(doc.status),
-              };
-            } catch (e) {
-              // if for some reason, corrupted data was introduced, we manage here failing formatDate function
-              // si pour une raison quelconque, des données corrompues ont été introduites, nous gérons ici la fonction formatDate qui échoue
+    if (!this.store) return Promise.resolve([]);
 
-              // log the error and return unformatted date in that case
-              // enregistrer l'erreur et retourner la date non formatée dans ce cas
-              console.log(e, "for", doc);
-              return {
-                ...doc,
-                date: doc.date,
-                status: formatStatus(doc.status),
-              };
-            }
-          });
-          console.log("length", bills.length);
-          return bills;
+    return this.store
+      .bills()
+      .list()
+      .then((snapshot) => {
+        // map + ajout de dateRaw pour le tri
+        const bills = snapshot.map((doc) => {
+          try {
+            return {
+              ...doc,
+              dateRaw: doc.date, // conserve la date brute pour le tri
+              date: formatDate(doc.date),
+              status: formatStatus(doc.status),
+            };
+          } catch (e) {
+            console.log(e, "for", doc);
+            return {
+              ...doc,
+              dateRaw: doc.date,
+              date: doc.date,
+              status: formatStatus(doc.status),
+            };
+          }
         });
-    }
+
+        // Tri décroissant : plus récent → plus ancien
+        return bills.sort((a, b) => new Date(b.dateRaw) - new Date(a.dateRaw));
+      });
   };
 }
