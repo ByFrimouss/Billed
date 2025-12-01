@@ -12,7 +12,6 @@ import NewBill from "../containers/NewBill.js";
 import mockStore from "../__mocks__/store";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
-import router from "../app/Router.js";
 
 //---------------------------------------------
 // Vérifie que le formulaire de nouvelle
